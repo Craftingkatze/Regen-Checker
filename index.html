@@ -296,12 +296,15 @@ async function loadWeather(location){
                 const time=days[date].times[idx];
                 if(idx%3===0||idx===0){ const timeLabel=document.createElement("div"); timeLabel.className="time-label"; timeLabel.textContent=time; timeLabels.appendChild(timeLabel); } 
                 else{ const spacer=document.createElement("div"); spacer.className="time-label"; spacer.style.opacity="0"; timeLabels.appendChild(spacer);}
-                const b=document.createElement("div"); b.className="block "+color; b.title=`${time} Uhr\nRegen: ${data.hourly.precipitation[idx]} mm\nLuftfeuchte: ${data.hourly.relative_humidity_2m[idx]}%`; row.appendChild(b);
-            });
-            timeline.appendChild(div);
-        });
-    }catch(e){ document.body.innerHTML="<div class='loading'>❌ Fehler beim Laden der Wetterdaten</div>"; console.error(e);}
-}
+            const b = document.createElement("div");
+            b.className = "block " + color;
+            b.title = `${time} Uhr`;
+            b.textContent = time; // Uhrzeit direkt im Block
+            row.appendChild(b);            });
+                        timeline.appendChild(div);
+                    });
+                }catch(e){ document.body.innerHTML="<div class='loading'>❌ Fehler beim Laden der Wetterdaten</div>"; console.error(e);}
+            }
 </script>
 </body>
 </html>
