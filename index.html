@@ -404,8 +404,7 @@
     const input = document.getElementById("locationInput");
     const suggestions = document.getElementById("suggestions");
     const appContainer = document.getElementById("appContainer");
-
-    // Suchfunktion
+    
     input.addEventListener("input", () => {
         const q = input.value.toLowerCase().trim();
         suggestions.innerHTML = "";
@@ -414,7 +413,7 @@
             return;
         }
         const results = LOCATIONS
-            .filter(l => l.name.toLowerCase().includes(q) || l.region.toLowerCase().includes(q))
+            .filter(l => (l.name.toLowerCase().includes(q) || l.region.toLowerCase().includes(q)) && l.name.toLowerCase().includes("berlin"))
             .slice(0, 8);
         if (results.length === 0) {
             suggestions.style.display = "none";
@@ -441,10 +440,14 @@
         loadWeather(location);
     }
 
-    // Statusfarbe + Text
-    function getStatus(precip, humidity, rainSoon) {
-        if (precip > 0.5 || rainSoon) return { color: "red", text: "ACHTUNG" };
-        if (humidity > 80) return { color: "yellow", text: "FEUCHT" };
+    function getStatus(data, index) {
+        const precipNow = data.hourly.precipitation[index] || 0;
+        const rainNext3h = data.hourly.precipitation.slice(index, index + 3).some(p => p >= 0.5);
+        const rainPrev3h = data.hourly.precipitation.slice(Math.max(0,index-3), index).some(p => p >= 0.5);
+        const humidityNow = data.hourly.relative_humidity_2m[index] || 0;
+    
+        if (precipNow >= 0.5 || rainNext3h) return { color: "red", text: "ACHTUNG" };
+        if (rainPrev3h || humidityNow > 80) return { color: "yellow", text: "FEUCHT" };
         return { color: "green", text: "TROCKEN" };
     }
 
