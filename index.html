@@ -526,43 +526,56 @@
             // Schrittweite für die Stundenanzeige (abhängig von Bildschirmbreite)
             const step = window.innerWidth < 500 ? 2 : 1; // bei schmalen Geräten nur jede 2. Stunde als Zahl
 
-            // Tage durchgehen und Grid aufbauen
+                    // Tage durchgehen und Grid aufbauen
             Object.keys(days).forEach(date => {
                 const dateObj = new Date(date + "T12:00:00");
                 const weekday = WEEKDAYS[dateObj.getDay()];
                 const dayHours = days[date].hours; // Array mit 24 Einträgen
-            
+
                 const dayDiv = document.createElement("div");
                 dayDiv.className = "day";
-            
+
                 // Kopf
                 const header = document.createElement("div");
                 header.className = "day-header";
                 header.innerHTML = `<span class="weekday">${weekday}</span><span class="date">${date}</span>`;
                 dayDiv.appendChild(header);
-            
+
+                // Grid
                 const grid = document.createElement("div");
                 grid.className = "timeline-grid";
-            
-                // Stunden vertikal anzeigen
-                const hourColumn = document.createElement("div");
-                hourColumn.style.display = "flex";
-                hourColumn.style.flexDirection = "column";
-                hourColumn.style.gap = "4px";
-            
-                dayHours.forEach((hourData, h) => {
-                    const span = document.createElement("span");
-                    // Einstellige Stunden für 0–9
-                    span.textContent = h < 10 ? h.toString() : h.toString();
-                    // Regen-Icon bei Niederschlag
-                    if (hourData.precip > 0) span.textContent += " 🌧️";
-                    span.title = hourData.time + " Uhr";
-                    hourColumn.appendChild(span);
-                });
-            
-                // Blockreihe bleibt horizontal, aber die Stundenliste ist nun vertikal
+
+                // Stundenzeile (mit verdünnten Zahlen + Regen-Icons)
+               const hourRow = document.createElement("div");
+                    hourRow.className = "hour-row";
+                    hourRow.style.display = "grid";
+                    hourRow.style.gridTemplateColumns = "repeat(24, 1fr)";
+                    hourRow.style.gap = "4px";
+                    
+                    for (let h = 0; h < 24; h++) {
+                        const hourData = dayHours[h];
+                        const span = document.createElement("span");
+                    
+                        // Stunden 0–9 einstellig
+                        span.textContent = h < 10 ? h.toString() : h.toString();
+                    
+                        // Regen-Icon wenn Niederschlag
+                        if (hourData.precip > 0) span.textContent += " 🌧️";
+                    
+                        // Vertikal darstellen
+                        span.style.display = "inline-block";
+                        span.style.transform = "rotate(-90deg)";
+                        span.style.transformOrigin = "left top";
+                        span.style.whiteSpace = "nowrap";
+                        span.title = hourData.time + " Uhr";
+                    
+                        hourRow.appendChild(span);
+                    }
+
+                // Blockreihe (anklickbar)
                 const blockRow = document.createElement("div");
                 blockRow.className = "block-row";
+
                 dayHours.forEach((hourData, idx) => {
                     const block = document.createElement("div");
                     block.className = `block ${hourData.color}`;
@@ -570,7 +583,8 @@
                     block.setAttribute("data-temp", hourData.temp);
                     block.setAttribute("data-humidity", hourData.humidity);
                     block.setAttribute("data-precip", hourData.precip);
-            
+
+                    // Klick-Event für genauere Infos
                     block.addEventListener("click", (e) => {
                         const time = e.currentTarget.dataset.time;
                         const temp = e.currentTarget.dataset.temp;
@@ -578,15 +592,16 @@
                         const precip = e.currentTarget.dataset.precip;
                         alert(`📍 ${time} Uhr\n🌡️ Temperatur: ${temp}°C\n💧 Luftfeuchtigkeit: ${hum}%\n☔ Niederschlag: ${precip} mm`);
                     });
-            
+
                     blockRow.appendChild(block);
                 });
-            
-                grid.appendChild(hourColumn);
+
+                grid.appendChild(hourRow);
                 grid.appendChild(blockRow);
                 dayDiv.appendChild(grid);
                 timeline.appendChild(dayDiv);
             });
+
         } catch (e) {
             document.body.innerHTML = `<div class="loading">❌ Fehler beim Laden.<br><button onclick="location.reload()" style="margin-top:20px; padding:12px 24px; background:white; color:black; border:none; border-radius:40px;">↻ Neu laden</button></div>`;
             console.error(e);
