@@ -1,347 +1,526 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Regen Status - Deutschland</title>
-<style>
-* { margin:0; padding:0; box-sizing:border-box; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Regen Status · Deutschland</title>
+    <style>
+        /* === RESET & VOLLE BILDSCHIRMNUTZUNG (wie App) === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-html, body {
-    width:100%;
-    height:100%;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-}
+        html, body {
+            height: 100%;
+            background-color: #4b5563; /* fallback gray */
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            transition: background-color 0.4s ease;
+        }
 
-body {
-    transition: background-color .4s ease;
-    display:flex;
-    flex-direction:column;
-    background:#6b7280;
-    overflow-x:hidden;
-}
+        body {
+            display: flex;
+            flex-direction: column;
+            padding: 0;               /* kein äußerer Rand – App-Feeling */
+        }
 
-body.green { background:linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
-body.yellow { background:linear-gradient(135deg, #eab308 0%, #ca8a04 100%); }
-body.red { background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-body.gray { background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
+        /* Hintergrundfarben je nach Status (werden per JS gesetzt) */
+        body.green { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+        body.yellow { background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); }
+        body.red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        body.gray { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
 
-.container {
-    width:100%;
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    overflow-y:auto;
-    padding:15px;
-}
+        /* Hauptcontainer – füllt den Bildschirm, scrollbar nur vertikal */
+        .container {
+            flex: 1;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 12px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
 
-.card {
-    background:rgba(255,255,255,.95);
-    padding:20px;
-    border-radius:18px;
-    margin-bottom:20px;
-    box-shadow:0 10px 30px rgba(0,0,0,.15);
-    width:100%;
-    max-width:500px;
-}
+        /* Karten – leicht, abgerundet, Schatten */
+        .card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(2px);
+            padding: 20px 16px;
+            border-radius: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
 
-h1 {
-    margin-bottom:15px;
-    font-size:26px;
-    color:#1f2937;
-    text-align:center;
-}
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #1f2937;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
 
-.search-wrapper { position:relative; }
+        /* === SUCHE === */
+        .search-wrapper {
+            position: relative;
+        }
 
-input {
-    width:100%;
-    padding:12px 16px;
-    font-size:16px;
-    border-radius:12px;
-    border:2px solid #e5e7eb;
-    outline:none;
-    transition:all .3s;
-    background:#f9fafb;
-}
+        input {
+            width: 100%;
+            padding: 16px 18px;
+            font-size: 16px;
+            border-radius: 20px;
+            border: 2px solid #e5e7eb;
+            outline: none;
+            background: #f9fafb;
+            transition: all 0.2s;
+            -webkit-appearance: none;
+        }
 
-input:focus {
-    border-color:#22c55e;
-    background:white;
-    box-shadow:0 4px 12px rgba(34,197,94,.1);
-}
+        input:focus {
+            border-color: #22c55e;
+            background: white;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+        }
 
-.suggestions {
-    position:absolute;
-    top:100%;
-    left:0;
-    right:0;
-    background:white;
-    border:2px solid #e5e7eb;
-    border-top:none;
-    border-radius:0 0 12px 12px;
-    max-height:300px;
-    overflow-y:auto;
-    display:none;
-    box-shadow:0 10px 25px rgba(0,0,0,.1);
-    z-index:1000;
-}
+        .suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 20px 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
 
-.suggestions div { padding:10px 15px; cursor:pointer; border-bottom:1px solid #f3f4f6; }
-.suggestions div:hover { background:#f0fdf4; }
-.suggestion-name { font-weight:600; color:#1f2937; }
-.suggestion-detail { font-size:12px; color:#6b7280; }
+        .suggestions div {
+            padding: 14px 18px;
+            cursor: pointer;
+            border-bottom: 1px solid #f3f4f6;
+        }
 
-.status-text { font-size:40px; font-weight:bold; text-align:center; margin-bottom:10px; text-shadow:2px 2px 8px rgba(0,0,0,.1);}
-.location-info { font-size:20px; text-align:center; color:#4b5563; margin-bottom:5px; }
-.weather-info { font-size:16px; text-align:center; color:#6b7280; margin-bottom:15px; }
+        .suggestions div:last-child { border-bottom: none; }
+        .suggestions div:hover { background: #f0fdf4; }
 
-.timeline-container {
-    width:100%;
-}
+        .suggestion-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
 
-.day { margin-bottom:25px; }
+        .suggestion-detail {
+            font-size: 13px;
+            color: #6b7280;
+        }
 
-.day-header {
-    display:flex;
-    justify-content:space-between;
-    margin-bottom:10px;
-}
+        /* === STATUS-ANZEIGE (große Schrift) === */
+        .status-text {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+            letter-spacing: -0.02em;
+        }
 
-.weekday { font-weight:700; color:#1f2937; }
-.date { font-size:14px; color:#6b7280; }
+        .location-info {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
 
-.timeline {
-    display:flex;
-    width:100%;
-    height:40px;
-    position:relative;
-    gap:2px;
-}
+        .weather-info {
+            font-size: 1.2rem;
+            color: #4b5563;
+            margin-bottom: 16px;
+            font-weight: 400;
+        }
 
-.block {
-    flex:1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:4px;
-    font-size:10px;
-    font-weight:600;
-    color:white;
-    transition:transform .2s;
-}
+        /* === LEGENDE === */
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+            flex-wrap: wrap;
+        }
 
-.block.green { background:#22c55e; }
-.block.yellow { background:#eab308; color:#1f2937; }
-.block.red { background:#ef4444; }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-.block:hover { transform:scaleY(1.15); cursor:pointer; }
+        .legend-color {
+            width: 28px;
+            height: 20px;
+            border-radius: 8px;
+        }
 
-.rainline {
-    position:absolute;
-    top:0;
-    left:0;
-    height:4px;
-    background:rgba(0,0,0,.5);
-    border-radius:2px;
-}
+        .legend-color.green { background: #22c55e; }
+        .legend-color.yellow { background: #eab308; }
+        .legend-color.red { background: #ef4444; }
 
-button {
-    margin-top:15px;
-    padding:12px 24px;
-    border:none;
-    border-radius:10px;
-    cursor:pointer;
-    font-size:16px;
-    font-weight:600;
-    background:#1f2937;
-    color:white;
-    width:100%;
-    max-width:500px;
-    transition:all .3s;
-}
+        .legend-text {
+            font-size: 14px;
+            color: #374151;
+            font-weight: 500;
+        }
 
-button:hover {
-    background:#374151;
-    transform:translateY(-2px);
-}
+        /* === 7-TAGE TIMELINE – OHNE HORIZONTALEN SCROLLER === */
+        .day {
+            margin-bottom: 28px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 24px;
+            padding: 16px 12px;
+            backdrop-filter: blur(4px);
+        }
 
-.loading {
-    color:white;
-    text-align:center;
-    margin-top:100px;
-    font-size:28px;
-    font-weight:600;
-}
+        .day-header {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            padding-left: 4px;
+        }
 
-.legend {
-    display:flex;
-    gap:15px;
-    margin-top:15px;
-    flex-wrap:wrap;
-}
+        .weekday {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
 
-.legend-item { display:flex; align-items:center; gap:5px; }
-.legend-color { width:25px; height:15px; border-radius:3px; }
-.legend-text { font-size:12px; color:#6b7280; }
-</style>
+        .date {
+            font-size: 1rem;
+            color: #4b5563;
+            font-weight: 400;
+        }
+
+        /* Grid‑Container für Stunden + Blöcke */
+        .timeline-grid {
+            display: grid;
+            grid-template-rows: auto auto;
+            gap: 4px;
+            width: 100%;
+        }
+
+        /* Stundenreihe */
+        .hour-row {
+            display: grid;
+            grid-template-columns: repeat(24, 1fr);
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #1f2937;
+            background: rgba(255,255,255,0.5);
+            border-radius: 40px;
+            padding: 4px 0;
+        }
+
+        .hour-row span {
+            white-space: nowrap;
+            font-size: 0.7rem;
+        }
+
+        /* Blockreihe */
+        .block-row {
+            display: grid;
+            grid-template-columns: repeat(24, 1fr);
+            gap: 3px;
+        }
+
+        /* Jeder Block – gleichmäßige Verteilung, keine feste Breite */
+        .block {
+            height: 38px;
+            border-radius: 10px;
+            transition: transform 0.1s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* Farben der Blöcke */
+        .block.green { background: #22c55e; }
+        .block.yellow { background: #eab308; }
+        .block.red { background: #ef4444; }
+
+        /* Kleiner Hover-Effekt (auch für Touch) */
+        .block:active {
+            transform: scale(0.98);
+        }
+
+        /* === ZUSATZLINIE BEI REGEN (weisser Strich oberhalb) === */
+        .block.red::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: white;
+            border-radius: 3px;
+            box-shadow: 0 0 6px rgba(255,255,255,0.8);
+        }
+
+        /* Buttons */
+        button {
+            margin-top: 10px;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: #1f2937;
+            color: white;
+            transition: all 0.2s;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 280px;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #374151;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 18px rgba(0,0,0,0.2);
+        }
+
+        /* Lade‑ / Fehlerbildschirm */
+        .loading {
+            color: white;
+            text-align: center;
+            margin-top: 30vh;
+            font-size: 2rem;
+            font-weight: 600;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            padding: 20px;
+        }
+
+        /* Kleine Anpassung für sehr schmale Geräte */
+        @media (max-width: 380px) {
+            .hour-row span { font-size: 0.6rem; }
+            .block { height: 32px; }
+            .status-text { font-size: 2.8rem; }
+        }
+    </style>
 </head>
 <body class="gray">
 
-<div class="container">
+<div class="container" id="appContainer">
+    <!-- Start-Karte wird per JS ersetzt, sobald ein Ort gewählt wird -->
     <div class="card" id="startCard">
-        <h1>🌧️ Regen Vorhersage Deutschland</h1>
+        <h1>🌧️ Regen · Deutschland</h1>
         <div class="search-wrapper">
-            <input id="locationInput" placeholder="Stadt oder Stadtteil eingeben...">
+            <input id="locationInput" type="text" placeholder="Stadt oder Stadtteil..." autocomplete="off">
             <div class="suggestions" id="suggestions"></div>
         </div>
     </div>
 </div>
 
 <script>
-const LOCATIONS = [
-  {name:"Berlin", region:"Berlin", country:"Deutschland", lat:52.52, lon:13.405},
-  {name:"Berlin-Mitte", region:"Berlin", country:"Deutschland", lat:52.5200, lon:13.4050},
-  {name:"Hamburg", region:"Hamburg", country:"Deutschland", lat:53.5511, lon:9.9937},
-  {name:"München", region:"Bayern", country:"Deutschland", lat:48.1351, lon:11.582}
-];
+    (function() {
+        // Einfache Ortsdaten (nur Beispiele)
+        const LOCATIONS = [
+            { name: "Berlin", region: "Berlin", country: "Deutschland", lat: 52.52, lon: 13.405 },
+            { name: "Berlin-Mitte", region: "Berlin", country: "Deutschland", lat: 52.5200, lon: 13.4050 },
+            { name: "Hamburg", region: "Hamburg", country: "Deutschland", lat: 53.5511, lon: 9.9937 },
+            { name: "München", region: "Bayern", country: "Deutschland", lat: 48.1351, lon: 11.5820 },
+            { name: "Köln", region: "Nordrhein-Westfalen", country: "Deutschland", lat: 50.9375, lon: 6.9603 },
+            { name: "Frankfurt", region: "Hessen", country: "Deutschland", lat: 50.1109, lon: 8.6821 },
+            { name: "Stuttgart", region: "Baden-Württemberg", country: "Deutschland", lat: 48.7758, lon: 9.1829 },
+            { name: "Düsseldorf", region: "Nordrhein-Westfalen", country: "Deutschland", lat: 51.2277, lon: 6.7735 },
+            { name: "Dresden", region: "Sachsen", country: "Deutschland", lat: 51.0504, lon: 13.7373 },
+            { name: "Hannover", region: "Niedersachsen", country: "Deutschland", lat: 52.3759, lon: 9.7320 }
+        ];
 
-const WEEKDAYS = ["So","Mo","Di","Mi","Do","Fr","Sa"];
+        const WEEKDAYS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 
-const input = document.getElementById("locationInput");
-const suggestions = document.getElementById("suggestions");
+        const input = document.getElementById("locationInput");
+        const suggestions = document.getElementById("suggestions");
+        const appContainer = document.getElementById("appContainer");
 
-input.addEventListener("input", () => {
-    const q = input.value.toLowerCase();
-    suggestions.innerHTML = "";
-    if(q.length < 2) return suggestions.style.display="none";
-    const results = LOCATIONS.filter(l => l.name.toLowerCase().includes(q) || l.region.toLowerCase().includes(q)).slice(0,10);
-    if(results.length === 0) return suggestions.style.display="none";
-    results.forEach(loc=>{
-        const div=document.createElement("div");
-        div.innerHTML = `<div class="suggestion-name">${loc.name}</div><div class="suggestion-detail">${loc.region}, ${loc.country}</div>`;
-        div.onclick=()=>selectLocation(loc);
-        suggestions.appendChild(div);
-    });
-    suggestions.style.display="block";
-});
-
-document.addEventListener("click",(e)=>{
-    if(!e.target.closest(".search-wrapper")) suggestions.style.display="none";
-});
-
-function selectLocation(location){
-    suggestions.style.display="none";
-    loadWeather(location);
-}
-
-function getStatus(precip,humidity,rainSoon){
-    if(precip>0 || rainSoon) return {color:"red",text:"ACHTUNG"};
-    if(humidity>85) return {color:"yellow",text:"FEUCHT"};
-    return {color:"green",text:"TROCKEN"};
-}
-
-async function loadWeather(location){
-    document.body.className="gray";
-    document.body.innerHTML="<div class='loading'>Lade Wetter für "+location.name+"...</div>";
-    try{
-        const url=`https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&hourly=temperature_2m,relative_humidity_2m,precipitation&timezone=auto&forecast_days=7`;
-        const res=await fetch(url);
-        const data=await res.json();
-
-        const now=new Date();
-        const index=data.hourly.time.findIndex(t=>new Date(t)>=now);
-        const precip=data.hourly.precipitation[index]||0;
-        const humidity=data.hourly.relative_humidity_2m[index]||0;
-        const temp=Math.round(data.hourly.temperature_2m[index]||0);
-        const rainSoon=data.hourly.precipitation.slice(index,index+3).some(p=>p>0);
-        const status=getStatus(precip,humidity,rainSoon);
-        document.body.className=status.color;
-
-        const container=document.createElement("div");
-        container.className="container";
-        container.innerHTML=`
-        <div class="card">
-            <div class="status-text">${status.text}</div>
-            <div class="location-info">${location.name}</div>
-            <div class="weather-info">${temp}°C | Luftfeuchtigkeit: ${humidity}%</div>
-            <button onclick="location.reload()">Andere Stadt</button>
-            <div class="legend">
-                <div class="legend-item"><div class="legend-color green"></div><span class="legend-text">Trocken</span></div>
-                <div class="legend-item"><div class="legend-color yellow"></div><span class="legend-text">Feucht (>85%)</span></div>
-                <div class="legend-item"><div class="legend-color red"></div><span class="legend-text">Regen</span></div>
-            </div>
-        </div>
-        <div class="card">
-            <h2 style="margin-bottom:10px;">7-Tage Vorhersage</h2>
-            <div id="timeline" class="timeline-container"></div>
-        </div>`;
-
-        document.body.innerHTML="";
-        document.body.appendChild(container);
-
-        const days={};
-        data.hourly.time.forEach((t,i)=>{
-            const d=t.split("T")[0];
-            if(!days[d]) days[d]={colors:[], times:[], rainIndexes:[]};
-            const p=data.hourly.precipitation[i]||0;
-            const h=data.hourly.relative_humidity_2m[i]||0;
-            const soon=data.hourly.precipitation.slice(i,i+3).some(x=>x>0);
-            const status=getStatus(p,h,soon);
-            days[d].colors.push(status.color);
-            days[d].times.push(t.split("T")[1].substring(0,5));
-            if(status.color==="red") days[d].rainIndexes.push(i);
-        });
-
-        const timeline=document.getElementById("timeline");
-
-        Object.keys(days).forEach(date=>{
-            const dateObj=new Date(date+"T12:00:00");
-            const weekday=WEEKDAYS[dateObj.getDay()];
-            const div=document.createElement("div");
-            div.className="day";
-            div.innerHTML=`
-                <div class="day-header">
-                    <span class="weekday">${weekday}</span>
-                    <span class="date">${date}</span>
-                </div>
-                <div class="timeline"></div>
-            `;
-            const row=div.querySelector(".timeline");
-
-            const totalBlocks=days[date].colors.length;
-            const maxWidth=row.offsetWidth || 400;
-            const blockWidth=Math.max(maxWidth/totalBlocks,25);
-
-            days[date].colors.forEach((color,idx)=>{
-                const time=days[date].times[idx];
-                const b=document.createElement("div");
-                b.className="block "+color;
-                b.style.minWidth=blockWidth+"px";
-                b.textContent=time;
-                row.appendChild(b);
-            });
-
-            // Regenlinie
-            const rainline=document.createElement("div");
-            rainline.className="rainline";
-            if(days[date].rainIndexes.length>0){
-                const start=(days[date].rainIndexes[0]/totalBlocks)*100;
-                const end=(days[date].rainIndexes[days[date].rainIndexes.length-1]/totalBlocks)*100;
-                rainline.style.left=start+"%";
-                rainline.style.width=(end-start)+"%";
-                row.appendChild(rainline);
+        // Suchvorschläge
+        input.addEventListener("input", () => {
+            const q = input.value.toLowerCase().trim();
+            suggestions.innerHTML = "";
+            if (q.length < 2) {
+                suggestions.style.display = "none";
+                return;
             }
-
-            timeline.appendChild(div);
+            const results = LOCATIONS
+                .filter(l => l.name.toLowerCase().includes(q) || l.region.toLowerCase().includes(q))
+                .slice(0, 8);
+            if (results.length === 0) {
+                suggestions.style.display = "none";
+                return;
+            }
+            results.forEach(loc => {
+                const div = document.createElement("div");
+                div.innerHTML = `<div class="suggestion-name">${loc.name}</div>
+                                 <div class="suggestion-detail">${loc.region}, ${loc.country}</div>`;
+                div.onclick = () => selectLocation(loc);
+                suggestions.appendChild(div);
+            });
+            suggestions.style.display = "block";
         });
 
-    }catch(e){
-        document.body.innerHTML="<div class='loading'>❌ Fehler beim Laden der Wetterdaten</div>";
-        console.error(e);
-    }
-}
+        // Klick außerhalb schließt Vorschläge
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest(".search-wrapper")) {
+                suggestions.style.display = "none";
+            }
+        });
+
+        function selectLocation(location) {
+            suggestions.style.display = "none";
+            loadWeather(location);
+        }
+
+        // Status ermitteln: grün (trocken), gelb (feucht >85%), rot (regen oder in 3h)
+        function getStatus(precip, humidity, rainSoon) {
+            if (precip > 0 || rainSoon) return { color: "red", text: "ACHTUNG" };
+            if (humidity > 85) return { color: "yellow", text: "FEUCHT" };
+            return { color: "green", text: "TROCKEN" };
+        }
+
+        async function loadWeather(location) {
+            // Ladeanzeige
+            document.body.className = "gray";
+            document.body.innerHTML = `<div class="loading">🌤️ Lade Wetter für ${location.name} …</div>`;
+
+            try {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&hourly=temperature_2m,relative_humidity_2m,precipitation&timezone=auto&forecast_days=7`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                // Aktuelle Stunde finden
+                const now = new Date();
+                const index = data.hourly.time.findIndex(t => new Date(t) >= now);
+                const precip = data.hourly.precipitation[index] || 0;
+                const humidity = data.hourly.relative_humidity_2m[index] || 0;
+                const temp = Math.round(data.hourly.temperature_2m[index] || 0);
+                const rainSoon = data.hourly.precipitation.slice(index, index + 3).some(p => p > 0);
+                const status = getStatus(precip, humidity, rainSoon);
+
+                // Hintergrund setzen
+                document.body.className = status.color;
+
+                // Neues Gerüst aufbauen (volle App-Ansicht)
+                const container = document.createElement("div");
+                container.className = "container";
+
+                // === STATUS-KARTE ===
+                container.innerHTML = `
+                    <div class="card">
+                        <div class="status-text">${status.text}</div>
+                        <div class="location-info">${location.name}</div>
+                        <div class="weather-info">${temp}°C · Luftfeuchtigkeit ${humidity}%</div>
+                        <button id="backButton">↩︎ Andere Stadt</button>
+                        <div class="legend">
+                            <div class="legend-item"><div class="legend-color green"></div><span class="legend-text">Trocken</span></div>
+                            <div class="legend-item"><div class="legend-color yellow"></div><span class="legend-text">Feucht >85%</span></div>
+                            <div class="legend-item"><div class="legend-color red"></div><span class="legend-text">Regen</span></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h2 style="margin-bottom:16px;">⏳ 7-Tage Vorhersage</h2>
+                        <div id="timeline"></div>
+                    </div>
+                `;
+
+                // Alten Inhalt ersetzen
+                document.body.innerHTML = "";
+                document.body.appendChild(container);
+
+                // === DATEN FÜR DIE TIMELINE AUFBEREITEN ===
+                const days = {};  // { "2025-02-14": { colors: [], times: [] } }
+
+                data.hourly.time.forEach((t, i) => {
+                    const d = t.split("T")[0];
+                    if (!days[d]) days[d] = { colors: [], times: [] };
+                    const p = data.hourly.precipitation[i] || 0;
+                    const h = data.hourly.relative_humidity_2m[i] || 0;
+                    const soon = data.hourly.precipitation.slice(i, i + 3).some(x => x > 0);
+                    days[d].colors.push(getStatus(p, h, soon).color);
+                    days[d].times.push(t.split("T")[1].substring(0, 5)); // "14:00"
+                });
+
+                const timeline = document.getElementById("timeline");
+                timeline.innerHTML = ""; // leeren
+
+                // Für jeden Tag eine Zeile bauen (ohne horizontalen Scrollzwang)
+                Object.keys(days).forEach(date => {
+                    const dateObj = new Date(date + "T12:00:00");
+                    const weekday = WEEKDAYS[dateObj.getDay()];
+
+                    const dayDiv = document.createElement("div");
+                    dayDiv.className = "day";
+
+                    // Kopf
+                    const header = document.createElement("div");
+                    header.className = "day-header";
+                    header.innerHTML = `<span class="weekday">${weekday}</span><span class="date">${date}</span>`;
+                    dayDiv.appendChild(header);
+
+                    // Grid für Stunden + Blöcke
+                    const grid = document.createElement("div");
+                    grid.className = "timeline-grid";
+
+                    // Stundenreihe (0‑23 Uhr)
+                    const hourRow = document.createElement("div");
+                    hourRow.className = "hour-row";
+                    for (let h = 0; h < 24; h++) {
+                        const hourSpan = document.createElement("span");
+                        hourSpan.textContent = h.toString().padStart(2, "0"); // "00" bis "23"
+                        hourRow.appendChild(hourSpan);
+                    }
+
+                    // Blockreihe (Farben)
+                    const blockRow = document.createElement("div");
+                    blockRow.className = "block-row";
+                    days[date].colors.forEach((color, idx) => {
+                        const block = document.createElement("div");
+                        block.className = `block ${color}`;
+                        block.title = days[date].times[idx] + " Uhr";   // Tooltip mit genauer Zeit
+                        blockRow.appendChild(block);
+                    });
+
+                    grid.appendChild(hourRow);
+                    grid.appendChild(blockRow);
+                    dayDiv.appendChild(grid);
+                    timeline.appendChild(dayDiv);
+                });
+
+                // Zurück‑Button Funktion geben
+                document.getElementById("backButton").addEventListener("click", () => {
+                    location.reload(); // einfacher Neustart
+                });
+
+            } catch (e) {
+                document.body.innerHTML = `<div class="loading">❌ Fehler beim Laden.<br><button onclick="location.reload()">Nochmal</button></div>`;
+                console.error(e);
+            }
+        }
+
+        // Falls Enter gedrückt wird – ersten Vorschlag nehmen (einfach)
+        input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter" && suggestions.children.length > 0) {
+                suggestions.children[0].click();
+            }
+        });
+
+        // Kleiner Trick: Bei Neulade der Startseite ist das Suchfeld leer
+        // Alles weitere passiert über die Buttons
+    })();
 </script>
 </body>
 </html>
