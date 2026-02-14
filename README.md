@@ -22,9 +22,3 @@ Dieses Projekt zeigt eine **Live-Regen-Vorhersage für Deutschland** an. Nutzer:
 
 ---
 
-## Installation / Nutzung
-
-1. Repository klonen oder ZIP herunterladen:  
-
-```bash
-git clone https://github.com/DEIN-GITHUB-USERNAME/repo-name.git
