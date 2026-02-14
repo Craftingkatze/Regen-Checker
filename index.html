@@ -173,6 +173,7 @@ input:focus {
 }
 
 .time-label {
+    margin:5px;
     flex:1;
     text-align:center;
     font-size:11px;
@@ -455,7 +456,7 @@ async function loadWeather(location){
         const humidity=data.hourly.relative_humidity_2m[index]||0;
         const temp=Math.round(data.hourly.temperature_2m[index]||0);
 
-        const rainSoon=data.hourly.precipitation.slice(index,index+4).some(p=>p>0);
+        const rainSoon=data.hourly.precipitation.slice(index,index+3).some(p=>p>0);
 
         const status=getStatus(precip,humidity,rainSoon);
 
@@ -469,7 +470,7 @@ async function loadWeather(location){
             <div class="status-text">${status.text}</div>
             <div class="location-info">${location.name}</div>
             <div class="weather-info">${temp}°C | Luftfeuchtigkeit: ${humidity}%</div>
-            <button onclick="location.reload()">🔍 Andere Stadt</button>
+            <button onclick="location.reload()">Andere Stadt</button>
             <div class="legend">
                 <div class="legend-item">
                     <div class="legend-color green"></div>
