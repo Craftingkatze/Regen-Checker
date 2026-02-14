@@ -17,7 +17,7 @@
   <rect x="40" y="14" width="4" height="20" fill="#8B4513" rx="1"/>
   <polygon points="38,14 46,14 42,8" fill="#F4A460"/>
   <circle cx="42" cy="8" r="1.5" fill="#00f"/>
-</svg></svg>">
+</svg>>
     <style>
         /* === VOLLE BILDSCHIRMNUTZUNG, APP-FEELING === */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -418,30 +418,31 @@
     const suggestions = document.getElementById("suggestions");
     const appContainer = document.getElementById("appContainer");
     
+      // Suchfunktion zurück auf Original
     input.addEventListener("input", () => {
-            const q = input.value.toLowerCase().trim();
-            suggestions.innerHTML = "";
-            if (q.length < 2) {
-                suggestions.style.display = "none";
-                return;
-            }
-            const results = LOCATIONS
-                .filter(l => l.name.toLowerCase().includes(q) || l.region.toLowerCase().includes(q))
-                .slice(0, 8);
-            if (results.length === 0) {
-                suggestions.style.display = "none";
-                return;
-            }
-            results.forEach(loc => {
-                const div = document.createElement("div");
-                div.innerHTML = <div class="suggestion-name">${loc.name}</div>
-                                 <div class="suggestion-detail">${loc.region}, ${loc.country}</div>;
-                div.onclick = () => selectLocation(loc);
-                suggestions.appendChild(div);
-            });
-            suggestions.style.display = "block";
+        const q = input.value.toLowerCase().trim();
+        suggestions.innerHTML = "";
+        if (q.length < 2) {
+            suggestions.style.display = "none";
+            return;
+        }
+        const results = LOCATIONS
+            .filter(l => l.name.toLowerCase().includes(q) || l.region.toLowerCase().includes(q))
+            .slice(0, 8);
+        if (results.length === 0) {
+            suggestions.style.display = "none";
+            return;
+        }
+        results.forEach(loc => {
+            const div = document.createElement("div");
+            div.innerHTML = `<div class="suggestion-name">${loc.name}</div>
+                             <div class="suggestion-detail">${loc.region}, ${loc.country}</div>`;
+            div.onclick = () => selectLocation(loc);
+            suggestions.appendChild(div);
         });
-
+        suggestions.style.display = "block";
+    });
+    
     document.addEventListener("click", (e) => {
         if (!e.target.closest(".search-wrapper")) {
             suggestions.style.display = "none";
