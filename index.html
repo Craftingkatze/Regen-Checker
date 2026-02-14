@@ -44,12 +44,7 @@ input:focus { border-color:#22c55e; background:white; box-shadow:0 4px 12px rgba
 .timeline-container { position:relative; }
 .timeline { display:flex; gap:3px; height:40px; margin-top:35px; }
 .time-labels {
-    display: flex;
-    gap: 3px;
-    margin-bottom: 8px;
-    position: absolute;
-    top: -25px; /* leicht nach oben verschoben */
-    left: 0;
+    display: none; /* keine separaten Labels mehr */
 }
 
 .time-label {
@@ -60,11 +55,11 @@ input:focus { border-color:#22c55e; background:white; box-shadow:0 4px 12px rgba
     writing-mode: horizontal-tb; /* vertikal -> horizontal */
     transform: none; /* Rotation entfernen */
     font-weight: 500;
-}
-.block { flex:1; border-radius:4px; transition:transform .2s; }
+}.block { flex: 1; border-radius: 4px; transition: transform .2s; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; font-weight: 600; }
+
 .block:hover { transform:scaleY(1.15); cursor:pointer; }
 .block.green { background:#22c55e; }
-.block.yellow { background:#eab308; }
+.block.yellow { background:#eab308; color:#1f2937; } /* dunkler Text auf Gelb */
 .block.red { background:#ef4444; }
 
 button { margin-top:15px; padding:12px 24px; border:none; border-radius:10px; cursor:pointer; font-size:16px; font-weight:600; background:#1f2937; color:white; transition:all .3s; box-shadow:0 4px 12px rgba(0,0,0,.1); }
