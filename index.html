@@ -501,14 +501,16 @@
             data.hourly.time.forEach((t, i) => {
                 const d = t.split("T")[0];
                 if (!days[d]) days[d] = { hours: [] };
-
+            
                 const timeStr = t.split("T")[1].substring(0,5);
                 const tempVal = data.hourly.temperature_2m[i];
                 const humVal = data.hourly.relative_humidity_2m[i];
                 const precipVal = data.hourly.precipitation[i] || 0;
-                const rainSoon = data.hourly.precipitation.slice(i, i+3).some(p => p > 0);
-                const color = getStatus(precipVal, humVal, rainSoon).color;
-
+            
+                // Index-basiert Status ermitteln
+                const statusObj = getStatus(data, i);
+                const color = statusObj.color;
+            
                 days[d].hours.push({
                     time: timeStr,
                     temp: tempVal,
