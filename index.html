@@ -3,18 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Regen Status · Deutschland</title>
+    <title>Regen App · Deutschland</title>
     <style>
-        /* === RESET & VOLLE BILDSCHIRMNUTZUNG (wie App) === */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* === VOLLE BILDSCHIRMNUTZUNG, APP-FEELING === */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         html, body {
             height: 100%;
-            background-color: #4b5563; /* fallback gray */
+            background-color: #4b5563;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             transition: background-color 0.4s ease;
         }
@@ -22,16 +18,15 @@
         body {
             display: flex;
             flex-direction: column;
-            padding: 0;               /* kein äußerer Rand – App-Feeling */
+            padding: 0;
         }
 
-        /* Hintergrundfarben je nach Status (werden per JS gesetzt) */
+        /* Hintergrundfarben (werden per JS gesetzt) */
         body.green { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
         body.yellow { background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); }
         body.red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
         body.gray { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
 
-        /* Hauptcontainer – füllt den Bildschirm, scrollbar nur vertikal */
         .container {
             flex: 1;
             width: 100%;
@@ -42,12 +37,11 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Karten – leicht, abgerundet, Schatten */
         .card {
             background: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(2px);
             padding: 20px 16px;
-            border-radius: 24px;
+            border-radius: 28px;
             margin-bottom: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -70,7 +64,7 @@
             width: 100%;
             padding: 16px 18px;
             font-size: 16px;
-            border-radius: 20px;
+            border-radius: 30px;
             border: 2px solid #e5e7eb;
             outline: none;
             background: #f9fafb;
@@ -92,7 +86,7 @@
             background: white;
             border: 2px solid #e5e7eb;
             border-top: none;
-            border-radius: 0 0 20px 20px;
+            border-radius: 0 0 24px 24px;
             max-height: 300px;
             overflow-y: auto;
             display: none;
@@ -109,41 +103,31 @@
         .suggestions div:last-child { border-bottom: none; }
         .suggestions div:hover { background: #f0fdf4; }
 
-        .suggestion-name {
-            font-weight: 600;
-            color: #1f2937;
-        }
+        .suggestion-name { font-weight: 600; color: #1f2937; }
+        .suggestion-detail { font-size: 13px; color: #6b7280; }
 
-        .suggestion-detail {
-            font-size: 13px;
-            color: #6b7280;
-        }
-
-        /* === STATUS-ANZEIGE (große Schrift) === */
+        /* === STATUS-ANZEIGE === */
         .status-text {
             font-size: 3.5rem;
             font-weight: 800;
             line-height: 1.1;
             margin-bottom: 8px;
             text-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-            letter-spacing: -0.02em;
         }
 
         .location-info {
             font-size: 1.5rem;
             font-weight: 500;
             color: #1f2937;
-            margin-bottom: 4px;
         }
 
         .weather-info {
             font-size: 1.2rem;
             color: #4b5563;
-            margin-bottom: 16px;
-            font-weight: 400;
+            margin: 8px 0 16px 0;
         }
 
-        /* === LEGENDE === */
+        /* Legende */
         .legend {
             display: flex;
             gap: 20px;
@@ -162,24 +146,19 @@
         .legend-color {
             width: 28px;
             height: 20px;
-            border-radius: 8px;
+            border-radius: 10px;
         }
-
         .legend-color.green { background: #22c55e; }
         .legend-color.yellow { background: #eab308; }
         .legend-color.red { background: #ef4444; }
 
-        .legend-text {
-            font-size: 14px;
-            color: #374151;
-            font-weight: 500;
-        }
+        .legend-text { font-size: 14px; color: #374151; font-weight: 500; }
 
-        /* === 7-TAGE TIMELINE – OHNE HORIZONTALEN SCROLLER === */
+        /* === 7-TAGE TIMELINE (OHNE HORIZONTALSCROLL) === */
         .day {
             margin-bottom: 28px;
             background: rgba(255,255,255,0.4);
-            border-radius: 24px;
+            border-radius: 28px;
             padding: 16px 12px;
             backdrop-filter: blur(4px);
         }
@@ -198,14 +177,12 @@
             font-weight: 700;
             color: #1f2937;
         }
-
         .date {
             font-size: 1rem;
             color: #4b5563;
             font-weight: 400;
         }
 
-        /* Grid‑Container für Stunden + Blöcke */
         .timeline-grid {
             display: grid;
             grid-template-rows: auto auto;
@@ -213,51 +190,46 @@
             width: 100%;
         }
 
-        /* Stundenreihe */
         .hour-row {
             display: grid;
             grid-template-columns: repeat(24, 1fr);
             text-align: center;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 500;
             color: #1f2937;
             background: rgba(255,255,255,0.5);
             border-radius: 40px;
-            padding: 4px 0;
+            padding: 6px 0;
         }
 
         .hour-row span {
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             font-size: 0.7rem;
         }
 
-        /* Blockreihe */
         .block-row {
             display: grid;
             grid-template-columns: repeat(24, 1fr);
             gap: 3px;
         }
 
-        /* Jeder Block – gleichmäßige Verteilung, keine feste Breite */
         .block {
-            height: 38px;
+            height: 40px;
             border-radius: 10px;
-            transition: transform 0.1s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
             position: relative;
+            cursor: pointer;
         }
 
-        /* Farben der Blöcke */
+        /* Blockfarben */
         .block.green { background: #22c55e; }
         .block.yellow { background: #eab308; }
         .block.red { background: #ef4444; }
 
-        /* Kleiner Hover-Effekt (auch für Touch) */
-        .block:active {
-            transform: scale(0.98);
-        }
-
-        /* === ZUSATZLINIE BEI REGEN (weisser Strich oberhalb) === */
+        /* Kleiner weisser Strich oberhalb bei Regen (zusätzlicher Hinweis) */
         .block.red::after {
             content: '';
             position: absolute;
@@ -267,34 +239,14 @@
             height: 3px;
             background: white;
             border-radius: 3px;
-            box-shadow: 0 0 6px rgba(255,255,255,0.8);
+            box-shadow: 0 0 8px rgba(255,255,255,0.9);
         }
 
-        /* Buttons */
-        button {
-            margin-top: 10px;
-            padding: 14px 24px;
-            border: none;
-            border-radius: 40px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            background: #1f2937;
-            color: white;
-            transition: all 0.2s;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 280px;
-            -webkit-appearance: none;
-            cursor: pointer;
-        }
+        .block:active { transform: scale(0.97); }
 
-        button:hover {
-            background: #374151;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 18px rgba(0,0,0,0.2);
-        }
+        /* Kein "Andere Stadt"-Button mehr – wurde entfernt */
 
-        /* Lade‑ / Fehlerbildschirm */
+        /* Ladeanzeige */
         .loading {
             color: white;
             text-align: center;
@@ -305,18 +257,15 @@
             padding: 20px;
         }
 
-        /* Kleine Anpassung für sehr schmale Geräte */
-        @media (max-width: 380px) {
-            .hour-row span { font-size: 0.6rem; }
-            .block { height: 32px; }
-            .status-text { font-size: 2.8rem; }
+        @media (max-width: 450px) {
+            .hour-row span { font-size: 0.65rem; }
+            .block { height: 36px; }
         }
     </style>
 </head>
 <body class="gray">
 
 <div class="container" id="appContainer">
-    <!-- Start-Karte wird per JS ersetzt, sobald ein Ort gewählt wird -->
     <div class="card" id="startCard">
         <h1>🌧️ Regen · Deutschland</h1>
         <div class="search-wrapper">
@@ -327,200 +276,227 @@
 </div>
 
 <script>
-    (function() {
-        // Einfache Ortsdaten (nur Beispiele)
-        const LOCATIONS = [
-            { name: "Berlin", region: "Berlin", country: "Deutschland", lat: 52.52, lon: 13.405 },
-            { name: "Berlin-Mitte", region: "Berlin", country: "Deutschland", lat: 52.5200, lon: 13.4050 },
-            { name: "Hamburg", region: "Hamburg", country: "Deutschland", lat: 53.5511, lon: 9.9937 },
-            { name: "München", region: "Bayern", country: "Deutschland", lat: 48.1351, lon: 11.5820 },
-            { name: "Köln", region: "Nordrhein-Westfalen", country: "Deutschland", lat: 50.9375, lon: 6.9603 },
-            { name: "Frankfurt", region: "Hessen", country: "Deutschland", lat: 50.1109, lon: 8.6821 },
-            { name: "Stuttgart", region: "Baden-Württemberg", country: "Deutschland", lat: 48.7758, lon: 9.1829 },
-            { name: "Düsseldorf", region: "Nordrhein-Westfalen", country: "Deutschland", lat: 51.2277, lon: 6.7735 },
-            { name: "Dresden", region: "Sachsen", country: "Deutschland", lat: 51.0504, lon: 13.7373 },
-            { name: "Hannover", region: "Niedersachsen", country: "Deutschland", lat: 52.3759, lon: 9.7320 }
-        ];
+(function() {
+    const LOCATIONS = [
+        { name: "Berlin", region: "Berlin", country: "Deutschland", lat: 52.52, lon: 13.405 },
+        { name: "Berlin-Mitte", region: "Berlin", country: "Deutschland", lat: 52.5200, lon: 13.4050 },
+        { name: "Hamburg", region: "Hamburg", country: "Deutschland", lat: 53.5511, lon: 9.9937 },
+        { name: "München", region: "Bayern", country: "Deutschland", lat: 48.1351, lon: 11.5820 },
+        { name: "Köln", region: "Nordrhein-Westfalen", country: "Deutschland", lat: 50.9375, lon: 6.9603 },
+        { name: "Frankfurt", region: "Hessen", country: "Deutschland", lat: 50.1109, lon: 8.6821 },
+        { name: "Stuttgart", region: "Baden-Württemberg", country: "Deutschland", lat: 48.7758, lon: 9.1829 },
+        { name: "Düsseldorf", region: "Nordrhein-Westfalen", country: "Deutschland", lat: 51.2277, lon: 6.7735 },
+        { name: "Dresden", region: "Sachsen", country: "Deutschland", lat: 51.0504, lon: 13.7373 },
+        { name: "Hannover", region: "Niedersachsen", country: "Deutschland", lat: 52.3759, lon: 9.7320 }
+    ];
 
-        const WEEKDAYS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+    const WEEKDAYS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 
-        const input = document.getElementById("locationInput");
-        const suggestions = document.getElementById("suggestions");
-        const appContainer = document.getElementById("appContainer");
+    const input = document.getElementById("locationInput");
+    const suggestions = document.getElementById("suggestions");
+    const appContainer = document.getElementById("appContainer");
 
-        // Suchvorschläge
-        input.addEventListener("input", () => {
-            const q = input.value.toLowerCase().trim();
-            suggestions.innerHTML = "";
-            if (q.length < 2) {
-                suggestions.style.display = "none";
-                return;
-            }
-            const results = LOCATIONS
-                .filter(l => l.name.toLowerCase().includes(q) || l.region.toLowerCase().includes(q))
-                .slice(0, 8);
-            if (results.length === 0) {
-                suggestions.style.display = "none";
-                return;
-            }
-            results.forEach(loc => {
-                const div = document.createElement("div");
-                div.innerHTML = `<div class="suggestion-name">${loc.name}</div>
-                                 <div class="suggestion-detail">${loc.region}, ${loc.country}</div>`;
-                div.onclick = () => selectLocation(loc);
-                suggestions.appendChild(div);
-            });
-            suggestions.style.display = "block";
-        });
-
-        // Klick außerhalb schließt Vorschläge
-        document.addEventListener("click", (e) => {
-            if (!e.target.closest(".search-wrapper")) {
-                suggestions.style.display = "none";
-            }
-        });
-
-        function selectLocation(location) {
+    // Suchfunktion
+    input.addEventListener("input", () => {
+        const q = input.value.toLowerCase().trim();
+        suggestions.innerHTML = "";
+        if (q.length < 2) {
             suggestions.style.display = "none";
-            loadWeather(location);
+            return;
         }
-
-        // Status ermitteln: grün (trocken), gelb (feucht >85%), rot (regen oder in 3h)
-        function getStatus(precip, humidity, rainSoon) {
-            if (precip > 0 || rainSoon) return { color: "red", text: "ACHTUNG" };
-            if (humidity > 85) return { color: "yellow", text: "FEUCHT" };
-            return { color: "green", text: "TROCKEN" };
+        const results = LOCATIONS
+            .filter(l => l.name.toLowerCase().includes(q) || l.region.toLowerCase().includes(q))
+            .slice(0, 8);
+        if (results.length === 0) {
+            suggestions.style.display = "none";
+            return;
         }
+        results.forEach(loc => {
+            const div = document.createElement("div");
+            div.innerHTML = `<div class="suggestion-name">${loc.name}</div>
+                             <div class="suggestion-detail">${loc.region}, ${loc.country}</div>`;
+            div.onclick = () => selectLocation(loc);
+            suggestions.appendChild(div);
+        });
+        suggestions.style.display = "block";
+    });
 
-        async function loadWeather(location) {
-            // Ladeanzeige
-            document.body.className = "gray";
-            document.body.innerHTML = `<div class="loading">🌤️ Lade Wetter für ${location.name} …</div>`;
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest(".search-wrapper")) {
+            suggestions.style.display = "none";
+        }
+    });
 
-            try {
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&hourly=temperature_2m,relative_humidity_2m,precipitation&timezone=auto&forecast_days=7`;
-                const res = await fetch(url);
-                const data = await res.json();
+    function selectLocation(location) {
+        suggestions.style.display = "none";
+        loadWeather(location);
+    }
 
-                // Aktuelle Stunde finden
-                const now = new Date();
-                const index = data.hourly.time.findIndex(t => new Date(t) >= now);
-                const precip = data.hourly.precipitation[index] || 0;
-                const humidity = data.hourly.relative_humidity_2m[index] || 0;
-                const temp = Math.round(data.hourly.temperature_2m[index] || 0);
-                const rainSoon = data.hourly.precipitation.slice(index, index + 3).some(p => p > 0);
-                const status = getStatus(precip, humidity, rainSoon);
+    // Statusfarbe + Text
+    function getStatus(precip, humidity, rainSoon) {
+        if (precip > 0 || rainSoon) return { color: "red", text: "ACHTUNG" };
+        if (humidity > 85) return { color: "yellow", text: "FEUCHT" };
+        return { color: "green", text: "TROCKEN" };
+    }
 
-                // Hintergrund setzen
-                document.body.className = status.color;
+    async function loadWeather(location) {
+        document.body.className = "gray";
+        document.body.innerHTML = `<div class="loading">🌤️ Lade Wetter für ${location.name} …</div>`;
 
-                // Neues Gerüst aufbauen (volle App-Ansicht)
-                const container = document.createElement("div");
-                container.className = "container";
+        try {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&hourly=temperature_2m,relative_humidity_2m,precipitation&timezone=auto&forecast_days=7`;
+            const res = await fetch(url);
+            const data = await res.json();
 
-                // === STATUS-KARTE ===
-                container.innerHTML = `
-                    <div class="card">
-                        <div class="status-text">${status.text}</div>
-                        <div class="location-info">${location.name}</div>
-                        <div class="weather-info">${temp}°C · Luftfeuchtigkeit ${humidity}%</div>
-                        <button id="backButton">↩︎ Andere Stadt</button>
-                        <div class="legend">
-                            <div class="legend-item"><div class="legend-color green"></div><span class="legend-text">Trocken</span></div>
-                            <div class="legend-item"><div class="legend-color yellow"></div><span class="legend-text">Feucht >85%</span></div>
-                            <div class="legend-item"><div class="legend-color red"></div><span class="legend-text">Regen</span></div>
-                        </div>
+            // Aktuelle Stunde bestimmen
+            const now = new Date();
+            const index = data.hourly.time.findIndex(t => new Date(t) >= now);
+            const precip = data.hourly.precipitation[index] || 0;
+            const humidity = data.hourly.relative_humidity_2m[index] || 0;
+            const temp = Math.round(data.hourly.temperature_2m[index] || 0);
+            const rainSoon = data.hourly.precipitation.slice(index, index + 3).some(p => p > 0);
+            const status = getStatus(precip, humidity, rainSoon);
+
+            document.body.className = status.color;
+
+            // Container neu aufbauen (OHNE "Andere Stadt" Button)
+            const container = document.createElement("div");
+            container.className = "container";
+            container.innerHTML = `
+                <div class="card">
+                    <div class="status-text">${status.text}</div>
+                    <div class="location-info">${location.name}</div>
+                    <div class="weather-info">${temp}°C · Luftfeuchtigkeit ${humidity}%</div>
+                    <div class="legend">
+                        <div class="legend-item"><div class="legend-color green"></div><span class="legend-text">Trocken</span></div>
+                        <div class="legend-item"><div class="legend-color yellow"></div><span class="legend-text">Feucht >85%</span></div>
+                        <div class="legend-item"><div class="legend-color red"></div><span class="legend-text">Regen</span></div>
                     </div>
-                    <div class="card">
-                        <h2 style="margin-bottom:16px;">⏳ 7-Tage Vorhersage</h2>
-                        <div id="timeline"></div>
-                    </div>
-                `;
+                </div>
+                <div class="card">
+                    <h2 style="margin-bottom:16px;">⏳ 7-Tage Vorhersage</h2>
+                    <div id="timeline"></div>
+                </div>
+            `;
 
-                // Alten Inhalt ersetzen
-                document.body.innerHTML = "";
-                document.body.appendChild(container);
+            document.body.innerHTML = "";
+            document.body.appendChild(container);
 
-                // === DATEN FÜR DIE TIMELINE AUFBEREITEN ===
-                const days = {};  // { "2025-02-14": { colors: [], times: [] } }
+            // Daten für jeden Tag aufbereiten: Array mit Stunden-Objekten
+            const days = {}; // { "2025-02-14": { hours: [{ time, temp, humidity, precip, color }] } }
 
-                data.hourly.time.forEach((t, i) => {
-                    const d = t.split("T")[0];
-                    if (!days[d]) days[d] = { colors: [], times: [] };
-                    const p = data.hourly.precipitation[i] || 0;
-                    const h = data.hourly.relative_humidity_2m[i] || 0;
-                    const soon = data.hourly.precipitation.slice(i, i + 3).some(x => x > 0);
-                    days[d].colors.push(getStatus(p, h, soon).color);
-                    days[d].times.push(t.split("T")[1].substring(0, 5)); // "14:00"
+            data.hourly.time.forEach((t, i) => {
+                const d = t.split("T")[0];
+                if (!days[d]) days[d] = { hours: [] };
+
+                const timeStr = t.split("T")[1].substring(0,5);
+                const tempVal = data.hourly.temperature_2m[i];
+                const humVal = data.hourly.relative_humidity_2m[i];
+                const precipVal = data.hourly.precipitation[i] || 0;
+                const rainSoon = data.hourly.precipitation.slice(i, i+3).some(p => p > 0);
+                const color = getStatus(precipVal, humVal, rainSoon).color;
+
+                days[d].hours.push({
+                    time: timeStr,
+                    temp: tempVal,
+                    humidity: humVal,
+                    precip: precipVal,
+                    color: color
                 });
+            });
 
-                const timeline = document.getElementById("timeline");
-                timeline.innerHTML = ""; // leeren
+            const timeline = document.getElementById("timeline");
+            timeline.innerHTML = "";
 
-                // Für jeden Tag eine Zeile bauen (ohne horizontalen Scrollzwang)
-                Object.keys(days).forEach(date => {
-                    const dateObj = new Date(date + "T12:00:00");
-                    const weekday = WEEKDAYS[dateObj.getDay()];
+            // Schrittweite für die Stundenanzeige (abhängig von Bildschirmbreite)
+            const step = window.innerWidth < 500 ? 2 : 1; // bei schmalen Geräten nur jede 2. Stunde als Zahl
 
-                    const dayDiv = document.createElement("div");
-                    dayDiv.className = "day";
+            // Tage durchgehen und Grid aufbauen
+            Object.keys(days).forEach(date => {
+                const dateObj = new Date(date + "T12:00:00");
+                const weekday = WEEKDAYS[dateObj.getDay()];
+                const dayHours = days[date].hours; // Array mit 24 Einträgen
 
-                    // Kopf
-                    const header = document.createElement("div");
-                    header.className = "day-header";
-                    header.innerHTML = `<span class="weekday">${weekday}</span><span class="date">${date}</span>`;
-                    dayDiv.appendChild(header);
+                const dayDiv = document.createElement("div");
+                dayDiv.className = "day";
 
-                    // Grid für Stunden + Blöcke
-                    const grid = document.createElement("div");
-                    grid.className = "timeline-grid";
+                // Kopf
+                const header = document.createElement("div");
+                header.className = "day-header";
+                header.innerHTML = `<span class="weekday">${weekday}</span><span class="date">${date}</span>`;
+                dayDiv.appendChild(header);
 
-                    // Stundenreihe (0‑23 Uhr)
-                    const hourRow = document.createElement("div");
-                    hourRow.className = "hour-row";
-                    for (let h = 0; h < 24; h++) {
-                        const hourSpan = document.createElement("span");
-                        hourSpan.textContent = h.toString().padStart(2, "0"); // "00" bis "23"
-                        hourRow.appendChild(hourSpan);
+                // Grid
+                const grid = document.createElement("div");
+                grid.className = "timeline-grid";
+
+                // Stundenzeile (mit verdünnten Zahlen + Regen-Icons)
+                const hourRow = document.createElement("div");
+                hourRow.className = "hour-row";
+
+                for (let h = 0; h < 24; h++) {
+                    const hourData = dayHours[h];
+                    const span = document.createElement("span");
+
+                    if (h % step === 0) {
+                        // Zeige die Stundenzahl (z.B. "14")
+                        span.textContent = h.toString().padStart(2, '0');
+                    } else if (hourData.precip > 0) {
+                        // Bei Regen ein Icon, wenn die Zahl nicht angezeigt wird
+                        span.textContent = "🌧️";
+                    } else {
+                        span.textContent = ""; // leer
                     }
 
-                    // Blockreihe (Farben)
-                    const blockRow = document.createElement("div");
-                    blockRow.className = "block-row";
-                    days[date].colors.forEach((color, idx) => {
-                        const block = document.createElement("div");
-                        block.className = `block ${color}`;
-                        block.title = days[date].times[idx] + " Uhr";   // Tooltip mit genauer Zeit
-                        blockRow.appendChild(block);
+                    // Zusätzlich Tooltip mit genauer Zeit (für Desktop)
+                    span.title = hourData.time + " Uhr";
+                    hourRow.appendChild(span);
+                }
+
+                // Blockreihe (anklickbar)
+                const blockRow = document.createElement("div");
+                blockRow.className = "block-row";
+
+                dayHours.forEach((hourData, idx) => {
+                    const block = document.createElement("div");
+                    block.className = `block ${hourData.color}`;
+                    block.setAttribute("data-time", hourData.time);
+                    block.setAttribute("data-temp", hourData.temp);
+                    block.setAttribute("data-humidity", hourData.humidity);
+                    block.setAttribute("data-precip", hourData.precip);
+
+                    // Klick-Event für genauere Infos
+                    block.addEventListener("click", (e) => {
+                        const time = e.currentTarget.dataset.time;
+                        const temp = e.currentTarget.dataset.temp;
+                        const hum = e.currentTarget.dataset.humidity;
+                        const precip = e.currentTarget.dataset.precip;
+                        alert(`📍 ${time} Uhr\n🌡️ Temperatur: ${temp}°C\n💧 Luftfeuchtigkeit: ${hum}%\n☔ Niederschlag: ${precip} mm`);
                     });
 
-                    grid.appendChild(hourRow);
-                    grid.appendChild(blockRow);
-                    dayDiv.appendChild(grid);
-                    timeline.appendChild(dayDiv);
+                    blockRow.appendChild(block);
                 });
 
-                // Zurück‑Button Funktion geben
-                document.getElementById("backButton").addEventListener("click", () => {
-                    location.reload(); // einfacher Neustart
-                });
+                grid.appendChild(hourRow);
+                grid.appendChild(blockRow);
+                dayDiv.appendChild(grid);
+                timeline.appendChild(dayDiv);
+            });
 
-            } catch (e) {
-                document.body.innerHTML = `<div class="loading">❌ Fehler beim Laden.<br><button onclick="location.reload()">Nochmal</button></div>`;
-                console.error(e);
-            }
+        } catch (e) {
+            document.body.innerHTML = `<div class="loading">❌ Fehler beim Laden.<br><button onclick="location.reload()" style="margin-top:20px; padding:12px 24px; background:white; color:black; border:none; border-radius:40px;">↻ Neu laden</button></div>`;
+            console.error(e);
         }
+    }
 
-        // Falls Enter gedrückt wird – ersten Vorschlag nehmen (einfach)
-        input.addEventListener("keypress", (e) => {
-            if (e.key === "Enter" && suggestions.children.length > 0) {
-                suggestions.children[0].click();
-            }
-        });
+    // Enter-Taste: ersten Vorschlag nehmen
+    input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter" && suggestions.children.length > 0) {
+            suggestions.children[0].click();
+        }
+    });
 
-        // Kleiner Trick: Bei Neulade der Startseite ist das Suchfeld leer
-        // Alles weitere passiert über die Buttons
-    })();
+})();
 </script>
 </body>
 </html>
