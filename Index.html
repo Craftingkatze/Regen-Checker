@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regen Status</title>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    transition: background-color .4s ease;
+    padding:20px;
+}
+
+body.green { background:#22c55e; }
+body.yellow { background:#eab308; }
+body.red { background:#ef4444; }
+body.gray { background:#6b7280; }
+
+.container { max-width:1100px; margin:auto; }
+
+.card {
+    background:rgba(255,255,255,.95);
+    padding:30px;
+    border-radius:14px;
+    margin-bottom:20px;
+}
+
+h1 { margin-bottom:15px; }
+
+input {
+    width:100%;
+    padding:16px;
+    font-size:18px;
+    border-radius:10px;
+    border:2px solid #ddd;
+    outline:none;
+}
+
+input:focus { border-color:#22c55e; }
+
+.suggestions {
+    background:white;
+    border:2px solid #ddd;
+    border-top:none;
+    max-height:250px;
+    overflow-y:auto;
+    display:none;
+}
+
+.suggestions div {
+    padding:12px;
+    cursor:pointer;
+}
+
+.suggestions div:hover {
+    background:#f3f3f3;
+}
+
+.status-text {
+    font-size:48px;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+.timeline {
+    display:flex;
+    gap:2px;
+    height:35px;
+}
+
+.block {
+    flex:1;
+}
+
+.block.green { background:#22c55e; }
+.block.yellow { background:#eab308; }
+.block.red { background:#ef4444; }
+
+.day {
+    margin-bottom:15px;
+}
+
+button {
+    margin-top:15px;
+    padding:8px 14px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body class="gray">
+
+<div class="container">
+
+<div class="card" id="startCard">
+<h1>🌧️ Regen Vorhersage</h1>
+<input id="locationInput" placeholder="Stadt eingeben...">
+<div class="suggestions" id="suggestions"></div>
+</div>
+
+</div>
+
+<script>
+
+const LOCATIONS = [
+ {name:"Berlin", lat:52.52, lon:13.405},
+ {name:"Hamburg", lat:53.5511, lon:9.9937},
+ {name:"München", lat:48.1351, lon:11.582},
+ {name:"Köln", lat:50.9375, lon:6.9603},
+ {name:"Frankfurt am Main", lat:50.1109, lon:8.6821},
+ {name:"Stuttgart", lat:48.7758, lon:9.1829},
+ {name:"Düsseldorf", lat:51.2277, lon:6.7735},
+ {name:"Leipzig", lat:51.3397, lon:12.3731}
+];
+
+const input = document.getElementById("locationInput");
+const suggestions = document.getElementById("suggestions");
+
+input.addEventListener("input", () => {
+    const q = input.value.toLowerCase();
+    suggestions.innerHTML = "";
+    if(q.length < 2) return suggestions.style.display="none";
+
+    const results = LOCATIONS.filter(l => l.name.toLowerCase().includes(q));
+
+    if(results.length === 0) return suggestions.style.display="none";
+
+    results.forEach(loc => {
+        const div = document.createElement("div");
+        div.textContent = loc.name;
+        div.onclick = () => selectLocation(loc);
+        suggestions.appendChild(div);
+    });
+
+    suggestions.style.display="block";
+});
+
+function selectLocation(location){
+    suggestions.style.display="none";
+    loadWeather(location);
+}
+
+function getStatus(precip, humidity, rainSoon){
+    if(precip > 0 || rainSoon) return {color:"red", text:"ACHTUNG"};
+    if(humidity > 85) return {color:"yellow", text:"FEUCHT"};
+    return {color:"green", text:"TROCKEN"};
+}
+
+async function loadWeather(location){
+
+    document.body.className="gray";
+    document.body.innerHTML="<div style='color:white;text-align:center;margin-top:100px;font-size:22px;'>Lade Wetter...</div>";
+
+    try{
+        const url=`https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&hourly=temperature_2m,relative_humidity_2m,precipitation&timezone=auto&forecast_days=7`;
+
+        const res=await fetch(url);
+        const data=await res.json();
+
+        const now=new Date();
+        const index=data.hourly.time.findIndex(t=>new Date(t)>=now);
+
+        const precip=data.hourly.precipitation[index]||0;
+        const humidity=data.hourly.relative_humidity_2m[index]||0;
+        const temp=Math.round(data.hourly.temperature_2m[index]||0);
+
+        const rainSoon=data.hourly.precipitation.slice(index,index+4).some(p=>p>0);
+
+        const status=getStatus(precip,humidity,rainSoon);
+
+        document.body.className=status.color;
+
+        const container=document.createElement("div");
+        container.className="container";
+
+        container.innerHTML=`
+        <div class="card">
+            <div class="status-text">${status.text}</div>
+            <div>${location.name}</div>
+            <div>${temp}°C | ${humidity}%</div>
+            <button onclick="location.reload()">Andere Stadt</button>
+        </div>
+        <div class="card" id="timeline"></div>
+        `;
+
+        document.body.innerHTML="";
+        document.body.appendChild(container);
+
+        const days={};
+
+        data.hourly.time.forEach((t,i)=>{
+            const d=t.split("T")[0];
+            if(!days[d]) days[d]=[];
+            const p=data.hourly.precipitation[i]||0;
+            const h=data.hourly.relative_humidity_2m[i]||0;
+            const soon=data.hourly.precipitation.slice(i,i+3).some(x=>x>0);
+            days[d].push(getStatus(p,h,soon).color);
+        });
+
+        const timeline=document.getElementById("timeline");
+
+        Object.keys(days).forEach(date=>{
+            const div=document.createElement("div");
+            div.className="day";
+            div.innerHTML="<strong>"+date+"</strong><div class='timeline'></div>";
+            const row=div.querySelector(".timeline");
+            days[date].forEach(color=>{
+                const b=document.createElement("div");
+                b.className="block "+color;
+                row.appendChild(b);
+            });
+            timeline.appendChild(div);
+        });
+
+    }catch(e){
+        document.body.innerHTML="<div style='color:white;text-align:center;margin-top:100px;'>Fehler beim Laden</div>";
+    }
+}
+
+</script>
+</body>
+</html>
