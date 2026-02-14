@@ -442,9 +442,14 @@
     }
 
     // Statusfarbe + Text
-    function getStatus(precip, humidity, rainSoon) {
-        if (precip > 0.5 || rainSoon) return { color: "red", text: "ACHTUNG" };
-        if (humidity > 80) return { color: "yellow", text: "FEUCHT" };
+    function getStatus(data, index) {
+        const precipNow = data.hourly.precipitation[index] || 0;
+        const rainNext3h = data.hourly.precipitation.slice(index, index + 3).some(p => p >= 0.5);
+        const rainPrev3h = data.hourly.precipitation.slice(Math.max(0, index - 3), index).some(p => p >= 0.5);
+        const humidityNow = data.hourly.relative_humidity_2m[index] || 0;
+    
+        if (precipNow >= 0.5 || rainNext3h) return { color: "red", text: "ACHTUNG" };
+        if (rainPrev3h || humidityNow > 80) return { color: "yellow", text: "FEUCHT" };
         return { color: "green", text: "TROCKEN" };
     }
 
@@ -464,8 +469,7 @@
             const humidity = data.hourly.relative_humidity_2m[index] || 0;
             const temp = Math.round(data.hourly.temperature_2m[index] || 0);
             const rainSoon = data.hourly.precipitation.slice(index, index + 3).some(p => p > 0);
-            const status = getStatus(precip, humidity, rainSoon);
-
+            const status = getStatus(data, index);
             document.body.className = status.color;
 
             // Container neu aufbauen (OHNE "Andere Stadt" Button)
