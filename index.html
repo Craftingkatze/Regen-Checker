@@ -2,16 +2,23 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Regen Status - Deutschland</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 
-body {
+html, body {
+    width:100%;
+    height:100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+body {
     transition: background-color .4s ease;
-    padding:20px;
-    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:#6b7280;
+    overflow-x:hidden;
 }
 
 body.green { background:linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
@@ -19,29 +26,38 @@ body.yellow { background:linear-gradient(135deg, #eab308 0%, #ca8a04 100%); }
 body.red { background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
 body.gray { background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
 
-.container { max-width:1200px; margin:auto; }
+.container {
+    width:100%;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    overflow-y:auto;
+    padding:15px;
+}
 
 .card {
-    background:rgba(255,255,255,.96);
-    padding:25px;
+    background:rgba(255,255,255,.95);
+    padding:20px;
     border-radius:18px;
-    margin-bottom:25px;
-    box-shadow:0 10px 40px rgba(0,0,0,.15);
+    margin-bottom:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+    width:100%;
+    max-width:500px;
 }
 
-h1 { 
-    margin-bottom:20px; 
-    font-size:28px;
+h1 {
+    margin-bottom:15px;
+    font-size:26px;
     color:#1f2937;
+    text-align:center;
 }
 
-.search-wrapper {
-    position:relative;
-}
+.search-wrapper { position:relative; }
 
 input {
     width:100%;
-    padding:14px 18px;
+    padding:12px 16px;
     font-size:16px;
     border-radius:12px;
     border:2px solid #e5e7eb;
@@ -50,8 +66,8 @@ input {
     background:#f9fafb;
 }
 
-input:focus { 
-    border-color:#22c55e; 
+input:focus {
+    border-color:#22c55e;
     background:white;
     box-shadow:0 4px 12px rgba(34,197,94,.1);
 }
@@ -65,124 +81,70 @@ input:focus {
     border:2px solid #e5e7eb;
     border-top:none;
     border-radius:0 0 12px 12px;
-    max-height:400px;
+    max-height:300px;
     overflow-y:auto;
     display:none;
     box-shadow:0 10px 25px rgba(0,0,0,.1);
     z-index:1000;
 }
 
-.suggestions div {
-    padding:14px 20px;
-    cursor:pointer;
-    transition:background .2s;
-    border-bottom:1px solid #f3f4f6;
+.suggestions div { padding:10px 15px; cursor:pointer; border-bottom:1px solid #f3f4f6; }
+.suggestions div:hover { background:#f0fdf4; }
+.suggestion-name { font-weight:600; color:#1f2937; }
+.suggestion-detail { font-size:12px; color:#6b7280; }
+
+.status-text { font-size:40px; font-weight:bold; text-align:center; margin-bottom:10px; text-shadow:2px 2px 8px rgba(0,0,0,.1);}
+.location-info { font-size:20px; text-align:center; color:#4b5563; margin-bottom:5px; }
+.weather-info { font-size:16px; text-align:center; color:#6b7280; margin-bottom:15px; }
+
+.timeline-container {
+    width:100%;
 }
 
-.suggestions div:last-child {
-    border-bottom:none;
-}
-
-.suggestions div:hover {
-    background:#f0fdf4;
-}
-
-.suggestion-name {
-    font-weight:600;
-    color:#1f2937;
-    margin-bottom:2px;
-}
-
-.suggestion-detail {
-    font-size:13px;
-    color:#6b7280;
-}
-
-.status-text {
-    font-size:48px;
-    font-weight:bold;
-    margin-bottom:15px;
-    text-shadow:2px 2px 8px rgba(0,0,0,.1);
-}
-
-.location-info {
-    font-size:20px;
-    color:#4b5563;
-    margin-bottom:8px;
-}
-
-.weather-info {
-    font-size:18px;
-    color:#6b7280;
-    margin-bottom:20px;
-}
-
-.timeline-wrapper {
-    overflow-x:auto;
-}
-
-.day {
-    margin-bottom:25px;
-    padding-bottom:20px;
-    border-bottom:1px solid #e5e7eb;
-}
-
-.day:last-child {
-    border-bottom:none;
-}
+.day { margin-bottom:25px; }
 
 .day-header {
     display:flex;
-    align-items:center;
-    gap:12px;
-    margin-bottom:15px;
-    flex-wrap: wrap;
+    justify-content:space-between;
+    margin-bottom:10px;
 }
 
-.weekday {
-    font-size:20px;
-    font-weight:700;
-    color:#1f2937;
-    min-width:50px;
-}
-
-.date {
-    font-size:14px;
-    color:#6b7280;
-}
-
-.timeline-container {
-    overflow-x:auto;
-    -webkit-overflow-scrolling: touch;
-}
+.weekday { font-weight:700; color:#1f2937; }
+.date { font-size:14px; color:#6b7280; }
 
 .timeline {
     display:flex;
-    gap:2px;
-    min-width:100%;
+    width:100%;
     height:40px;
+    position:relative;
+    gap:2px;
 }
 
 .block {
-    min-width:40px;
-    flex: 0 0 auto;
-    border-radius:4px;
-    transition:transform .2s;
+    flex:1;
     display:flex;
     align-items:center;
     justify-content:center;
+    border-radius:4px;
     font-size:10px;
     font-weight:600;
     color:white;
+    transition:transform .2s;
 }
 
 .block.green { background:#22c55e; }
 .block.yellow { background:#eab308; color:#1f2937; }
 .block.red { background:#ef4444; }
 
-.block:hover {
-    transform:scaleY(1.15);
-    cursor:pointer;
+.block:hover { transform:scaleY(1.15); cursor:pointer; }
+
+.rainline {
+    position:absolute;
+    top:0;
+    left:0;
+    height:4px;
+    background:rgba(0,0,0,.5);
+    border-radius:2px;
 }
 
 button {
@@ -195,14 +157,14 @@ button {
     font-weight:600;
     background:#1f2937;
     color:white;
+    width:100%;
+    max-width:500px;
     transition:all .3s;
-    box-shadow:0 4px 12px rgba(0,0,0,.1);
 }
 
 button:hover {
     background:#374151;
     transform:translateY(-2px);
-    box-shadow:0 6px 16px rgba(0,0,0,.15);
 }
 
 .loading {
@@ -215,44 +177,26 @@ button:hover {
 
 .legend {
     display:flex;
-    gap:20px;
-    margin-top:20px;
-    padding-top:20px;
-    border-top:1px solid #e5e7eb;
-    flex-wrap: wrap;
+    gap:15px;
+    margin-top:15px;
+    flex-wrap:wrap;
 }
 
-.legend-item {
-    display:flex;
-    align-items:center;
-    gap:8px;
-}
-
-.legend-color {
-    width:30px;
-    height:20px;
-    border-radius:4px;
-}
-
-.legend-text {
-    font-size:14px;
-    color:#6b7280;
-}
+.legend-item { display:flex; align-items:center; gap:5px; }
+.legend-color { width:25px; height:15px; border-radius:3px; }
+.legend-text { font-size:12px; color:#6b7280; }
 </style>
 </head>
-
 <body class="gray">
 
 <div class="container">
-
-<div class="card" id="startCard">
-<h1>🌧️ Regen Vorhersage Deutschland</h1>
-<div class="search-wrapper">
-<input id="locationInput" placeholder="Stadt oder Stadtteil eingeben...">
-<div class="suggestions" id="suggestions"></div>
-</div>
-</div>
-
+    <div class="card" id="startCard">
+        <h1>🌧️ Regen Vorhersage Deutschland</h1>
+        <div class="search-wrapper">
+            <input id="locationInput" placeholder="Stadt oder Stadtteil eingeben...">
+            <div class="suggestions" id="suggestions"></div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -324,22 +268,13 @@ async function loadWeather(location){
             <div class="weather-info">${temp}°C | Luftfeuchtigkeit: ${humidity}%</div>
             <button onclick="location.reload()">Andere Stadt</button>
             <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color green"></div>
-                    <span class="legend-text">Trocken</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color yellow"></div>
-                    <span class="legend-text">Feucht (>85%)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color red"></div>
-                    <span class="legend-text">Regen</span>
-                </div>
+                <div class="legend-item"><div class="legend-color green"></div><span class="legend-text">Trocken</span></div>
+                <div class="legend-item"><div class="legend-color yellow"></div><span class="legend-text">Feucht (>85%)</span></div>
+                <div class="legend-item"><div class="legend-color red"></div><span class="legend-text">Regen</span></div>
             </div>
         </div>
         <div class="card">
-            <h2 style="margin-bottom:20px;">7-Tage Vorhersage</h2>
+            <h2 style="margin-bottom:10px;">7-Tage Vorhersage</h2>
             <div id="timeline" class="timeline-container"></div>
         </div>`;
 
@@ -349,12 +284,14 @@ async function loadWeather(location){
         const days={};
         data.hourly.time.forEach((t,i)=>{
             const d=t.split("T")[0];
-            if(!days[d]) days[d]={colors:[], times:[]};
+            if(!days[d]) days[d]={colors:[], times:[], rainIndexes:[]};
             const p=data.hourly.precipitation[i]||0;
             const h=data.hourly.relative_humidity_2m[i]||0;
             const soon=data.hourly.precipitation.slice(i,i+3).some(x=>x>0);
-            days[d].colors.push(getStatus(p,h,soon).color);
+            const status=getStatus(p,h,soon);
+            days[d].colors.push(status.color);
             days[d].times.push(t.split("T")[1].substring(0,5));
+            if(status.color==="red") days[d].rainIndexes.push(i);
         });
 
         const timeline=document.getElementById("timeline");
@@ -373,14 +310,30 @@ async function loadWeather(location){
             `;
             const row=div.querySelector(".timeline");
 
+            const totalBlocks=days[date].colors.length;
+            const maxWidth=row.offsetWidth || 400;
+            const blockWidth=Math.max(maxWidth/totalBlocks,25);
+
             days[date].colors.forEach((color,idx)=>{
                 const time=days[date].times[idx];
                 const b=document.createElement("div");
                 b.className="block "+color;
-                b.title=time+" Uhr";
+                b.style.minWidth=blockWidth+"px";
                 b.textContent=time;
                 row.appendChild(b);
             });
+
+            // Regenlinie
+            const rainline=document.createElement("div");
+            rainline.className="rainline";
+            if(days[date].rainIndexes.length>0){
+                const start=(days[date].rainIndexes[0]/totalBlocks)*100;
+                const end=(days[date].rainIndexes[days[date].rainIndexes.length-1]/totalBlocks)*100;
+                rainline.style.left=start+"%";
+                rainline.style.width=(end-start)+"%";
+                row.appendChild(rainline);
+            }
+
             timeline.appendChild(div);
         });
 
