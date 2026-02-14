@@ -546,31 +546,40 @@
                 grid.className = "timeline-grid";
 
                 // Stundenzeile (mit verdünnten Zahlen + Regen-Icons)
-               const hourRow = document.createElement("div");
-                    hourRow.className = "hour-row";
-                    hourRow.style.display = "grid";
-                    hourRow.style.gridTemplateColumns = "repeat(24, 1fr)";
-                    hourRow.style.gap = "4px";
-                    
-                    for (let h = 0; h < 24; h++) {
-                        const hourData = dayHours[h];
-                        const span = document.createElement("span");
-                    
-                        // Stunden 0–9 einstellig
-                        span.textContent = h < 10 ? h.toString() : h.toString();
-                    
-                        // Regen-Icon wenn Niederschlag
-                        if (hourData.precip > 0) span.textContent += " 🌧️";
-                    
-                        // Vertikal darstellen
-                        span.style.display = "inline-block";
-                        span.style.transform = "rotate(-90deg)";
-                        span.style.transformOrigin = "left top";
-                        span.style.whiteSpace = "nowrap";
-                        span.title = hourData.time + " Uhr";
-                    
-                        hourRow.appendChild(span);
-                    }
+                              // Stundenzeile (Zahl unten, Regen-Symbol oben)
+                const hourRow = document.createElement("div");
+                hourRow.className = "hour-row";
+                hourRow.style.display = "grid";
+                hourRow.style.gridTemplateColumns = "repeat(24, 1fr)";
+                hourRow.style.gap = "4px";
+                
+                for (let h = 0; h < 24; h++) {
+                    const hourData = dayHours[h];
+                
+                    const span = document.createElement("span");
+                    span.style.display = "flex";
+                    span.style.flexDirection = "column"; // vertikal
+                    span.style.alignItems = "center";
+                    span.style.justifyContent = "flex-start";
+                    span.style.transform = "rotate(-90deg)";
+                    span.style.transformOrigin = "center center";
+                    span.style.whiteSpace = "nowrap";
+                    span.title = hourData.time + " Uhr";
+                
+                    // Regen-Symbol oben
+                    const rain = document.createElement("span");
+                    rain.textContent = hourData.precip > 0 ? "🌧️" : "";
+                    rain.style.fontSize = "0.8em";
+                    span.appendChild(rain);
+                
+                    // Zahl unten
+                    const num = document.createElement("span");
+                    num.textContent = h < 10 ? h.toString() : h.toString();
+                    num.style.fontWeight = "600";
+                    span.appendChild(num);
+                
+                    hourRow.appendChild(span);
+                }
 
                 // Blockreihe (anklickbar)
                 const blockRow = document.createElement("div");
