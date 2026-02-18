@@ -448,7 +448,7 @@
         const rainPrev3h = data.hourly.precipitation.slice(Math.max(0, index - 3), index).some(p => p >= 0.5);
         const humidityNow = data.hourly.relative_humidity_2m[index] || 0;
     
-        if (precipNow >= 0.5 || rainNext3h) return { color: "red", text: "ACHTUNG" };
+        if (precipNow >= 0.5 || rainNext3h) return { color: "red", text: "REGEN" };
         if (rainPrev3h || humidityNow > 80) return { color: "yellow", text: "FEUCHT" };
         return { color: "green", text: "TROCKEN" };
     }
